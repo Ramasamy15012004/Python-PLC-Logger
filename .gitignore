@@ -1,0 +1,26 @@
+# Python temporary and cached files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+*.manifest
+
+# Local log files and sqlite databases
+logs/
+*.log
+*.csv
+
+# Local app configuration / states
+last_ip.txt
+.idea/
+.vscode/
+
+# System-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

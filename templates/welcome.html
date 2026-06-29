@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Welcome - PLC Data Logger</title>
+    <style>
+        :root {
+            --brand: #072f3a;
+            --accent-blue: #0a6fb8;
+            --btn-top: #66ff66;
+            --btn-bottom: #00c030;
+            --bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            font-family: "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+            color: var(--brand)
+        }
+
+        .topbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 18px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 0 30px;
+            pointer-events: none;
+        }
+
+        .logo-small {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-small img {
+            height: 48px;
+            width: auto;
+            display: block;
+        }
+
+        .clock {
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a6fb8;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .ppr-pill {
+            background: transparent;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 4px 10px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .center-wrap {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 40px;
+        }
+
+        .content {
+            max-width: 1200px;
+            width: 100%;
+            pointer-events: auto;
+        }
+
+        .title-top {
+            font-size: 44px;
+            letter-spacing: 2px;
+            margin: 6px 0 30px;
+            font-weight: 800;
+        }
+
+        .title-mid {
+            font-size: 34px;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            font-weight: 800;
+        }
+
+        .enter-wrap {
+            margin-top: 34px;
+        }
+
+        .enter-btn {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 3px solid rgba(0, 0, 0, 0.6);
+            background: linear-gradient(to bottom, var(--btn-top), var(--btn-bottom));
+            color: #002200;
+            font-weight: 900;
+            font-size: 20px;
+            padding: 12px 36px;
+            border-radius: 6px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar" aria-hidden="false">
+        <div class="logo-small" aria-hidden="false">
+            
+        </div>
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <div class="center-wrap">
+        <div class="content" role="main" aria-labelledby="welcome-heading">
+            <div style="height:40px"></div>
+
+            <h1 id="welcome-heading" class="title-top">WELCOME</h1>
+
+            <h2 class="title-mid">PNEUMATIC PRESSURE REGULATOR </h2>
+            <h2 class="title-mid">TEST RIG AUTOMATION</h2>
+
+            <div class="enter-wrap">
+                <button class="enter-btn" id="enterBtn">ENTER</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const d = new Date();
+            document.getElementById("clock").innerHTML =
+                `${String(d.getDate()).padStart(2, '0')}/${M[d.getMonth()]}/${d.getFullYear()}<br>` +
+                `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        document.getElementById("enterBtn").onclick = function () {
+            window.location.href = "/main";
+        };
+    </script>
+    <script>
+        fetch("/page_change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ page: 1 })
+        });
+    </script>
+
+</body>
+
+</html>

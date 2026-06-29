@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Impulse Pressure</title>
+
+    <style>
+        :root {
+            --blue: #0a6fb8;
+            --green1: #66ff66;
+            --green2: #00b44a;
+            --grey1: #fdfdfd;
+            --grey2: #dcdcdc;
+            --orange: #ffb347;
+            --dark: #003f57;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial;
+            background: white;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .topbar {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 9999;
+        }
+
+        .back-btn {
+            pointer-events: auto;
+            background: linear-gradient(#f2f2f2, #cfcfcf);
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.6), 0 6px 12px rgba(0, 0, 0, 0.18);
+        }
+
+        .back-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .title {
+            font-size: 44px;
+            font-weight: 800;
+            padding: 6px 24px;
+            border: 5px solid #00cc44;
+            border-radius: 5px;
+        }
+
+        .clock {
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a6fb8;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .big-box {
+            width: 800px;
+            margin: 20px auto;
+            background: linear-gradient(#ffffff, #f7eef7);
+            padding: 22px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            margin-top: 150px;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 110px 90px 90px 90px 90px 90px 90px;
+            gap: 10px;
+            margin-bottom: 18px;
+            align-items: center;
+        }
+
+        .header-title {
+            background: var(--blue);
+            color: white;
+            padding: 8px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .header-span-2 {
+            grid-column: span 2;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: 110px 90px 90px 90px 90px 90px 90px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .param-label {
+            background: var(--blue);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .param-box {
+            background: linear-gradient(var(--grey1), var(--grey2));
+            border: 2px solid #555;
+            border-radius: 6px;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .param-actual {
+            background: linear-gradient(var(--green1), var(--green2));
+            border: 2px solid #009933;
+            border-radius: 6px;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 800;
+            color: #002200;
+        }
+
+        .center-section {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .center-row {
+            display: grid;
+            grid-template-columns: 220px 90px 90px;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+        }
+
+        .center-label {
+            background: var(--blue);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .orange {
+            background: var(--orange);
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 28px;
+        }
+
+        .hmi-btn {
+            width: 160px;
+            padding: 10px 0;
+            font-size: 24px;
+            font-weight: 900;
+            border-radius: 10px;
+            border: 3px solid #222;
+            cursor: pointer;
+            text-shadow: 0 1px 1px white;
+        }
+
+        .hmi-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .start-btn {
+            background: linear-gradient(#66ff66, #00c030);
+        }
+
+        .stop-btn {
+            background: linear-gradient(#ff6b6b, #d40000);
+            color: white;
+        }
+
+        .pause-btn {
+            background: linear-gradient(#fff36b, #e6b800);
+        }
+
+        .ready {
+            margin: 25px auto;
+            background: #a6ff9e;
+            border: 2px solid #09b92c;
+            width: 350px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 900;
+        }
+    </style>
+
+    <style>
+ 
+    .t2 {
+      position: fixed;
+      bottom: 40px;
+      left: 20px;
+      z-index: 9999;
+    }
+
+    .t1 {
+      position: fixed;
+      bottom: 20px;
+      left: 30px;
+      z-index: 9999;
+    }
+
+    .indicator {
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      border: 3px solid #222;
+      background-color: #ff0000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .indicator.on {
+      background-color: #00ff00;
+      box-shadow: 0 0 12px #33ff33;
+    }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="t2">
+        <h4>PLC Com.</h4>
+    </div>
+
+    <div class="t1">
+        <div class="indicator" id="indicator3071"></div>
+    </div>
+
+    <div class="topbar">
+        <button class="back-btn" id="backBtn">BACK</button>
+        <div class="title">Impulse Pressure</div>
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <div class="big-box">
+
+        <div class="grid-header">
+            <div></div>
+
+            <div class="header-title header-span-2">Pressure (bar)</div>
+
+            <div class="header-title header-span-2">Rate of Rise (S)</div>
+
+            <div class="header-title header-span-2">Dwell Time (S)</div>
+        </div>
+
+        <div class="value-grid">
+
+            <div class="param-label">Maximum</div>
+
+            <div class="param-box" id="press_max_set1">--</div>
+            <div class="param-actual" id="press_max_actual1">--</div>
+
+            <div class="param-box" id="rate_max_set">--</div>
+            <div class="param-actual" id="rate_max_actual">--</div>
+
+            <div class="param-box" id="dwell_max_set">--</div>
+            <div class="param-actual" id="dwell_max_actual">--</div>
+
+            <div class="param-label">Minimum</div>
+
+            <div class="param-box" id="press_min_set">--</div>
+            <div></div>
+
+            <div class="param-box" id="rate_min_set">--</div>
+            <div class="param-actual" id="rate_min_actual">--</div>
+
+            <div class="param-box" id="dwell_min_set">--</div>
+            <div class="param-actual" id="dwell_min_actual">--</div>
+
+        </div>
+
+        <div class="center-section">
+
+            <div class="center-row">
+                <div class="center-label">No. of Cycles</div>
+                <div class="param-box" id="cycles_set1">--</div>
+                <div class="param-actual" id="cycles_actual_i1">--</div>
+            </div>
+
+            <div class="center-row">
+                <div class="center-label">Test Duration (min)</div>
+                <div class="param-box" id="duration_set">--</div>
+                <div class="param-actual" id="duration_actual1">--</div>
+            </div>
+<!-- 
+            <div class="center-row">
+                <div class="center-label orange">Leak Value to Stop (bar)</div>
+                <div class="param-box" id="leak_set1">--</div>
+                <div class="param-actual" id="leak_actual1">--</div>
+            </div> -->
+
+        </div>
+
+    </div>
+
+    <div class="btn-row">
+        <button class="hmi-btn start-btn" onclick="start()">START</button>
+        <button class="hmi-btn stop-btn" onclick="stop()">STOP</button>
+        <button class="hmi-btn pause-btn" id="pauseBtn" onclick="pause()">PAUSE</button>
+    </div>
+
+    <div class="ready" id="status_bar">Ready to Start</div>
+
+    <h3 style="padding-left: 250px;">Pressure vs Time</h3>
+    <canvas id="liveGraph" style="width:900px; margin:auto;"></canvas>
+
+    <!-- Chart.js -->
+    <script src="/static/js/chart.umd.min.js"></script>
+
+    <script>
+        function updateClock() {
+            const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const d = new Date();
+            document.getElementById("clock").innerHTML =
+                `${String(d.getDate()).padStart(2, '0')}/${m[d.getMonth()]}/${d.getFullYear()}<br>` +
+                `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        async function start() { await fetch("/i1_start", { method: "POST" }) }
+        async function stop()  { await fetch("/i1_stop",  { method: "POST" }) }
+
+        async function pause() {
+            await fetch("/i1_pause", { method: "POST" });
+            updatePauseState();
+        }
+
+        async function updatePauseState() {
+            const r = await fetch("/i1_pause_state");
+            const j = await r.json();
+            pauseBtn.innerText = j.state ? "RESUME" : "PAUSE";
+        }
+
+        setInterval(updatePauseState, 200);
+
+        let page = "impluse_1_auto";
+        let graphEnabled = false;
+        let paused = false;
+        let lastMSG = -1;
+
+        let g_time = 0;
+        let g_labels = [];
+        let g_data = [];
+
+        const MAX_POINTS = 500;
+
+        const P = 1;
+        const A = 1;
+        const T = 10;
+        const S = 60;
+        const SS =10;
+
+        function scaleValue(raw, scale) {
+            if (raw === null || raw === undefined) return "0.0";
+            return (raw / scale);
+        }
+
+        function roundLeak(value) {
+            if (value === null || value === undefined) return "0.00";
+
+            let v = value / A;
+
+            v = Math.round(v * 1) * 1;
+            // v = Math.ceil(v);           
+
+            return v.toFixed(2);
+        }
+
+        
+        function update_plc() {
+            fetch("/set_page/impluse_1_auto")
+            fetch("/plc_value")
+                .then(r => r.json())
+                .then(d => {
+
+                    // // PAUSE MODE SELECTION
+                    // let usePauseValues = (Number(d.MSG_i1) === 2);
+
+                    // // Select correct values
+                    // let rateMaxActual = usePauseValues ? d.rate_max_actual_v : d.rate_max_actual;
+                    // let dwellMaxActual = usePauseValues ? d.dwell_max_actual_v : d.dwell_max_actual;
+                    // let rateMinActual = usePauseValues ? d.rate_min_actual_v : d.rate_min_actual;
+                    // let dwellMinActual = usePauseValues ? d.dwell_min_actual_v : d.dwell_min_actual;
+
+                    document.getElementById("press_max_set1").innerText = scaleValue(d.press_max_set1, P).toFixed(2);
+                    document.getElementById("press_max_actual1").innerText = scaleValue(d.press_max_actual1, A).toFixed(2);
+                    document.getElementById("rate_max_set").innerText = scaleValue(d.rate_max_set, T).toFixed(1);
+                    document.getElementById("rate_max_actual").innerText = scaleValue(d.rate_max_actual, T).toFixed(1);
+                    document.getElementById("dwell_max_set").innerText = scaleValue(d.dwell_max_set, T).toFixed(1);
+                    document.getElementById("dwell_max_actual").innerText = scaleValue(d.dwell_max_actual, T).toFixed(1);
+
+                    document.getElementById("press_min_set").innerText = scaleValue(d.press_min_set, P).toFixed(2);
+                    document.getElementById("rate_min_set").innerText = scaleValue(d.rate_min_set, T).toFixed(1);
+                    document.getElementById("rate_min_actual").innerText = scaleValue(d.rate_min_actual, T).toFixed(1);
+                    document.getElementById("dwell_min_set").innerText = scaleValue(d.dwell_min_set, T).toFixed(1);
+                    document.getElementById("dwell_min_actual").innerText = scaleValue(d.dwell_min_actual, T).toFixed(1);
+
+                    document.getElementById("cycles_set1").innerText = d.cycles_set1 ?? "--";
+                    document.getElementById("cycles_actual_i1").innerText = d.cycles_actual_i1 ?? "--";
+
+                    document.getElementById("duration_set").innerText = scaleValue(d.duration_set, SS).toFixed(2);
+
+                    document.getElementById("duration_actual1").innerText = scaleValue(d.duration_actual1, S).toFixed(2);
+
+                    // document.getElementById("leak_set1").innerText = scaleValue(d.leak_set1, A).toFixed(2);
+                    // document.getElementById("leak_actual1").innerText = scaleValue(d.leak_actual1, A).toFixed(2);
+                    // document.getElementById("leak_set1").innerText = roundLeak(d.leak_set1);
+
+                    updateGraph(Number(d.press_max_actual1));
+
+                    const msgCode = Number(d.MSG_i1 ?? -1);
+                    handleMSG(msgCode);
+                    let statusText = "";
+                    let color = "";
+
+                    switch (msgCode) {
+                        case 0:
+                            statusText = "Ready to Start";
+                            color = "#aaff96";
+                            break;
+
+                        case 1:
+                            statusText = "Test Running";
+                            color = "#55ff5a";
+                            break;
+
+                        case 2:
+                            statusText = "Paused";
+                            color = "#ffaa00";
+                            break;
+
+                        case 3:
+                            statusText = "Test Fail, Leak Detected";
+                            color = "#ff555a";
+                            break;
+
+                        case 4:
+                            statusText = "Test Ok, Completed";
+                            color = "#55ff5a";
+                            break;
+
+                        default:
+                            statusText = "----NO MESSAGE----";
+                            color = "#ff0000";
+                            break;
+                    }
+
+                    const statusEl = document.getElementById("status_bar");
+                    statusEl.innerText = statusText;
+                    statusEl.style.background = color;
+                })
+                .catch(err => console.error("Fetch error:", err));
+        }
+
+        setInterval(update_plc, 200);
+        update_plc();
+
+        const Y_MARGIN = 1.5;   // how much space above peak (mm)
+
+        function updateYAxisScale() {
+            if (g_data.length === 0) return;
+
+            const maxVal = Math.max(...g_data);
+            const newMax = Math.ceil(maxVal * Y_MARGIN);
+
+            const yScale = pressureChart.options.scales.y;
+
+            // Only increase max → prevents shaking
+            if (!yScale.max || newMax > yScale.max) {
+                yScale.max = newMax;
+            }
+        }
+
+        let graphTime = 0;
+        let graphData = [];
+        let graphLabels = [];
+
+        const ctx = document.getElementById("liveGraph").getContext("2d");
+
+        const pressureChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: g_labels,
+                datasets: [{
+                    label: "Pressure",
+                    data: g_data,
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                animation: false,
+                scales: {
+                    x: { title: { display: true, text: "Time (sec)" } },
+                    y: {
+                        title: { display: true, text: "Pressure (bar)" },
+                    }
+                }
+            }
+        });
+
+        function updateGraph(pressureValue) {
+            if (!graphEnabled || paused) return;
+
+            g_time += 300;
+            let sec = g_time / 1000;
+
+            g_labels.push(Math.floor(sec));
+
+            g_data.push(pressureValue);
+
+            if (g_labels.length > MAX_POINTS) {
+                g_labels.shift();
+                g_data.shift();
+            }
+            updateYAxisScale();
+            pressureChart.update("none");
+        }
+
+        function handleMSG(msgCode) {
+
+            if (msgCode === 1 && lastMSG !== 1) {
+
+                graphEnabled = true;
+                paused = false;
+
+                g_time = 0;
+                g_labels.length = 0;
+                g_data.length = 0;
+
+                pressureChart.options.scales.y.max = undefined;
+                pressureChart.update();
+
+                fetch(`/csv_start/${page}`, { method: "POST" });
+            }
+
+            if (msgCode === 2 && lastMSG !== 2) {
+                paused = true;
+            }
+
+            if (msgCode === 1 && lastMSG === 2) {
+                paused = false;
+            }
+
+            if ((msgCode === 3 || msgCode === 4 || msgCode === 0) && lastMSG !== msgCode) {
+
+                graphEnabled = false;
+                paused = false;
+
+                fetch("/csv_stop", { method: "POST" });
+            }
+
+            lastMSG = msgCode;
+        }
+
+        document.getElementById("backBtn").onclick = function () {
+            window.location.href = "/auto";
+        };
+    </script>
+
+    <script>
+        fetch("/page_change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ page: 10 })
+        });
+    </script>
+<script>
+  function updateIndicator() {
+    fetch("/indicator_plc")
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById("indicator3071");
+        if (!el || !data.ok) return;
+
+        if (data.value === 1) {
+          el.classList.add("on");   // green
+        } else {
+          el.classList.remove("on"); // red
+        }
+      })
+      .catch(() => {});
+  }
+
+  setInterval(updateIndicator, 300);
+  updateIndicator();
+</script>
+
+
+</body>
+
+</html>

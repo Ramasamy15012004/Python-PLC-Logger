@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Burst Pressure</title>
+
+    <style>
+        :root {
+            --blue: #0a6fb8;
+            --brand: #003f57;
+            --green1: #66ff66;
+            --green2: #00b44a;
+            --grey1: #f2f2f2;
+            --grey2: #cfcfcf;
+            --yellow1: #fff36b;
+            --yellow2: #e6b800;
+            --red1: #ff6b6b;
+            --red2: #d40000;
+            --orange: #ffb347;
+        }
+
+        body {
+            margin: 0;
+            background: white;
+            font-family: "Segoe UI", Arial;
+            color: var(--brand);
+        }
+
+        .topbar {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 9999;
+        }
+
+        .back-btn {
+            pointer-events: auto;
+            background: linear-gradient(#f2f2f2, #cfcfcf);
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.6), 0 6px 12px rgba(0, 0, 0, 0.18);
+        }
+
+        .back-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .title {
+            font-size: 44px;
+            font-weight: 800;
+            padding: 4px 24px;
+            border: 5px solid #00cc44;
+            border-radius: 5px;
+        }
+
+        .clock {
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a6fb8;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .big-box {
+            width: 550px;
+            margin: 20px auto;
+            background: linear-gradient(#ffffff, #f6eef6);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            margin-top: 150px;
+        }
+
+        .big-box-header {
+            display: grid;
+            grid-template-columns: 240px 120px 120px;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .big-box-header div:nth-child(2),
+        .big-box-header div:nth-child(3) {
+            text-align: center;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 240px 120px 120px;
+            gap: 14px;
+            align-items: center;
+            margin: 14px 0;
+        }
+
+        .label {
+            background: var(--blue);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .label.orange {
+            background: var(--orange);
+        }
+
+        .box {
+            background: linear-gradient(#ffffff, #dcdcdc);
+            border: 2px solid #555;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+
+        .actual {
+            background: linear-gradient(var(--green1), var(--green2));
+            border-color: #009933;
+            color: #002200;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            min-width: 160px;
+            padding: 10px 0;
+            border-radius: 10px;
+            border: 3px solid #333;
+            font-size: 24px;
+            font-weight: 900;
+            text-shadow: 0 1px 1px #fff;
+            cursor: pointer;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .green-btn {
+            background: linear-gradient(var(--green1), var(--green2));
+        }
+
+        .red-btn {
+            background: linear-gradient(var(--red1), var(--red2));
+            color: white;
+        }
+
+        .yellow-btn {
+            background: linear-gradient(var(--yellow1), var(--yellow2));
+        }
+
+        .ready {
+            margin: 25px auto;
+            background: #a6ff9e;
+            border-radius: 6px;
+            border: 2px solid #09b92c;
+            width: 350px;
+            padding: 12px;
+            font-size: 22px;
+            text-align: center;
+            font-weight: 900;
+        }
+    </style>
+    <style>
+    
+    .t2 {
+      position: fixed;
+      bottom: 40px;
+      left: 20px;
+      z-index: 9999;
+    }
+
+    .t1 {
+      position: fixed;
+      bottom: 20px;
+      left: 30px;
+      z-index: 9999;
+    }
+
+    .indicator {
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      border: 3px solid #222;
+      background-color: #ff0000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .indicator.on {
+      background-color: #00ff00;
+      box-shadow: 0 0 12px #33ff33;
+    }
+
+    </style>
+</head>
+
+<body>
+    <!-- <div class="t2">
+        <h4>PLC Com.</h4>
+    </div> -->
+    <div class="t2">
+        <h4>PLC Com.</h4>
+    </div>
+    <div class="t1">
+        <div class="indicator" id="indicator3071"></div>
+    </div>
+
+    <div class="topbar">
+        <button class="back-btn" id="backBtn">BACK</button>
+        <div class="title">Burst Pressure</div>
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <div class="big-box">
+
+        <div class="big-box-header">
+            <div></div>
+            <div>Set</div>
+            <div>Actual</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Pressure (bar)</div>
+            <div class="box" id="pressure_set">0.00</div>
+            <div class="actual box" id="pressure_actual">0.00</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Rate of Rise (bar/min)</div>
+            <div class="box" id="rate_set1">0.0</div>
+            <div></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Time Duration (min)</div>
+            <div class="box" id="time_set">0.00</div>
+            <div class="actual box" id="time_actual">0.00</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Peak Pressure (bar)</div>
+            <div></div>
+            <div class="actual box" id="peak_actual">0.00</div>
+        </div>
+
+        <!-- <div class="row">
+            <div class="label orange">Leak Value to Stop (bar)</div>
+            <div class="box" id="leak_set">--</div>
+            <div class="actual box" id="leak_actual">--</div>
+        </div> -->
+
+    </div>
+
+    <div class="button-row">
+        <button class="btn green-btn" onclick="start()">START</button>
+        <button class="btn red-btn" onclick="stop()">STOP</button>
+        <button class="btn yellow-btn" id="pauseBtn" onclick="pause()">PAUSE</button>
+    </div>
+
+    <div class="ready" id="status_bar">Ready to Start</div>
+    <h3 style="padding-left: 250px;">Pressure vs Time</h3>
+    <canvas id="liveGraph" style="width:900px; margin:auto;"></canvas>
+
+    <script src="/static/js/chart.umd.min.js"></script>
+
+    <script>
+        function updateClock() {
+            const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const d = new Date();
+            document.getElementById("clock").innerHTML =
+                `${String(d.getDate()).padStart(2, '0')}/${m[d.getMonth()]}/${d.getFullYear()}<br>` +
+                `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let page = "burst_auto";
+        let graphEnabled = false;
+        let paused = false;
+        let lastMSG = -1;
+
+        let g_time = 0;
+        let g_labels = [];
+        let g_data = [];
+
+        const MAX_POINTS = 500;
+
+        const PRESSURE_SCALE = 1;
+        const rate_SCALE = 1;
+        const PRESSURE_SCALE_a = 1;
+        const time_SCALE = 60;
+
+
+        function scaleValue(raw, scale) {
+            if (raw === null || raw === undefined) return "0.00";
+            return (raw / scale).toFixed(1);   // divide and show result
+        }
+
+                function scaleValues(raw, scale) {
+            if (raw === null || raw === undefined) return "0.00";
+            return (raw / scale).toFixed(2); }
+
+        function roundLeak(value) {
+            if (value === null || value === undefined) return "0.00";
+
+            let v = value / PRESSURE_SCALE_a;  // existing scaling
+
+            v = Math.round(v * 1) * 1;  // <-- rounds 6.90 → 7, 6.40 → 6
+
+            return v.toFixed(1);
+        }
+
+        
+        /* PLC Updates */
+        function update_plc() {
+            fetch("/set_page/burst_auto")
+            fetch("/plc_value")
+                .then(r => r.json())
+                .then(d => {
+
+                    const msgCode = Number(d.MSG_b ?? d.MSG_i1 ?? d.MSG_i2 ?? d.MSG_s ?? -1);
+                    handleMSG(msgCode);
+
+                    // DISPLAY PLC VALUES
+                    document.getElementById("pressure_set").innerText =scaleValues(d.pressure_set, PRESSURE_SCALE);
+                    document.getElementById("pressure_actual").innerText = scaleValues(d.pressure_actual, PRESSURE_SCALE_a);
+                    document.getElementById("rate_set1").innerText = scaleValue(d.rate_set1, rate_SCALE);
+                    document.getElementById("time_set").innerText =d.time_set != null ? d.time_set.toFixed(2) : "0.00";
+                    document.getElementById("time_actual").innerText = scaleValues(d.time_actual , time_SCALE);
+                    document.getElementById("peak_actual").innerText = scaleValues(d.peak_actual, PRESSURE_SCALE_a);
+                    // document.getElementById("leak_set").innerText = roundLeak(d.leak_set);
+                    // document.getElementById("leak_actual").innerText = scaleValue(d.leak_actual, PRESSURE_SCALE_a);
+
+                    // UPDATE GRAPH
+                    updateGraph(Number(d.pressure_actual));
+
+                    let statusText = "";
+                    let color = "";
+
+                    switch (msgCode) {
+                        case 0:
+                            statusText = "Ready to Start";
+                            color = "#aaff96";
+                            break;
+
+                        case 1:
+                            statusText = "Test Running";
+                            color = "#55ff5a";
+                            break;
+
+                        case 2:
+                            statusText = "Paused";
+                            color = "#ffaa00";
+                            break;
+
+                        case 3:
+                            statusText = "Test Fail, Leak Detected";
+                            color = "#ff555a";
+                            break;
+
+                        case 4:
+                            statusText = "Test Ok, Completed";
+                            color = "#55ff5a";
+                            break;
+
+                        default:
+                            statusText = "----NO MESSAGE----";
+                            color = "#ff0000";
+                            break;
+                    }
+
+                    const statusEl = document.getElementById("status_bar");
+                    statusEl.innerText = statusText;
+                    statusEl.style.background = color;
+
+                })
+                .catch(err => console.error("Fetch error:", err));
+        }
+
+        setInterval(update_plc, 200);
+        update_plc();
+        async function start() { await fetch("/burst_start", { method: "POST" }) }
+        async function stop()  { await fetch("/burst_stop",  { method: "POST" }) }
+
+        async function pause() {
+            await fetch("/burst_pause", { method: "POST" });
+            updatePauseState();
+        }
+
+        async function updatePauseState() {
+            const r = await fetch("/burst_pause_state");
+            const j = await r.json();
+            pauseBtn.innerText = j.state ? "RESUME" : "PAUSE";
+        }
+
+        setInterval(updatePauseState, 200);
+
+        // Navigation buttons
+        document.getElementById("backBtn").onclick = function () {
+            window.location.href = "/auto";
+        };
+
+        const Y_MARGIN = 1.5;   // how much space above peak (mm)
+
+        function updateYAxisScale() {
+            if (g_data.length === 0) return;
+
+            const maxVal = Math.max(...g_data);
+            const newMax = Math.ceil(maxVal * Y_MARGIN);
+
+            const yScale = pressureChart.options.scales.y;
+
+            // Only increase max → prevents shaking
+            if (!yScale.max || newMax > yScale.max) {
+                yScale.max = newMax;
+            }
+        }
+
+        let graphTime = 0;
+        let graphData = [];
+        let graphLabels = [];
+
+        const ctx = document.getElementById("liveGraph").getContext("2d");
+
+        const pressureChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: g_labels,
+                datasets: [{
+                    label: "Pressure",
+                    data: g_data,
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                animation: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: "Time (sec)" },
+                        border: {
+                            width: 2,
+                            color: "black"
+                        },
+                    },
+                    y: {
+                        title: { display: true, text: "Pressure (bar)" },
+                        border: {
+                            width: 2,
+                            color: "black"
+                        },
+                    }
+                }
+            }
+        });
+
+        /* Update Graph Every 50ms */
+        function updateGraph(pressureValue) {
+            if (!graphEnabled || paused) return;
+
+            g_time += 300;
+            let sec = g_time / 1000;
+
+            g_labels.push(Math.floor(sec));
+
+            g_data.push(pressureValue);
+
+            if (g_labels.length > MAX_POINTS) {
+                g_labels.shift();
+                g_data.shift();
+            }
+
+            updateYAxisScale();
+            pressureChart.update("none");
+        }
+
+        function handleMSG(msgCode) {
+
+            if (msgCode === 1 && lastMSG !== 1) {
+
+                graphEnabled = true;
+                paused = false;
+
+                g_time = 0;
+                g_labels.length = 0;
+                g_data.length = 0;
+                pressureChart.options.scales.y.max = undefined;
+                pressureChart.update();
+
+                fetch(`/csv_start/${page}`, { method: "POST" });
+            }
+
+            if (msgCode === 2 && lastMSG !== 2) {
+                paused = true;
+            }
+
+            if (msgCode === 1 && lastMSG === 2) {
+                paused = false;
+            }
+
+            if ((msgCode === 3 || msgCode === 4 || msgCode === 0) && lastMSG !== msgCode) {
+
+                graphEnabled = false;
+                paused = false;
+
+                fetch("/csv_stop", { method: "POST" });
+            }
+
+            lastMSG = msgCode;
+        }
+
+    </script>
+
+    <script>
+        fetch("/page_change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ page: 9 })
+        });
+    </script>
+<script>
+  function updateIndicator() {
+    fetch("/indicator_plc")
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById("indicator3071");
+        if (!el || !data.ok) return;
+
+        if (data.value === 1) {
+          el.classList.add("on");   // green
+        } else {
+          el.classList.remove("on"); // red
+        }
+      })
+      .catch(() => {});
+  }
+
+  setInterval(updateIndicator, 300);
+  updateIndicator();
+</script>
+
+</body>
+
+</html>

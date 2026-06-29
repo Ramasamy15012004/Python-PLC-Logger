@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manual Mode</title>
+
+  <style>
+    :root {
+      --blue: #0a6fb8;
+      --brand: #003f57;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: white;
+      color: var(--brand);
+    }
+
+    .topbar {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 9999;
+    }
+
+    .back-btn {
+      pointer-events: auto;
+      background: linear-gradient(#f2f2f2, #cfcfcf);
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.6), 0 6px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    .back-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .title {
+      font-size: 44px;
+      font-weight: 800;
+      text-align: center;
+      flex-grow: 1;
+      padding: 6px 24px;
+    }
+
+    .clock {
+      width: 130px;
+      height: 130px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0a6fb8;
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .main {
+      margin-top: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 0;
+    }
+
+
+    .label {
+      background: var(--blue);
+      padding: 10px 20px;
+      color: white;
+      border-radius: 6px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .main-box {
+      width: 700px;
+      margin: 250px auto 40px;
+      padding: 30px 40px;
+      background: #f2eff9;
+      border-radius: 10px;
+      border: 1px solid #999;
+    }
+
+    .box {
+      background: linear-gradient(#ffffff, #e3e3e3);
+      width: 150px;
+      padding: 10px 0;
+      text-align: center;
+      border-radius: 6px;
+      border: 2px solid #777;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    .btn {
+      width: 60px;
+      height: 45px;
+      font-size: 26px;
+      font-weight: 800;
+      border-radius: 6px;
+      background: white;
+      border: 2px solid #333;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    #popup {
+      position: absolute;
+      display: none;
+      background: white;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 2px solid #0a6fb8;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 2000;
+    }
+  </style>
+
+  <style>
+  
+    .t2 {
+      position: fixed;
+      bottom: 40px;
+      left: 20px;
+      z-index: 9999;
+    }
+
+    .t1 {
+      position: fixed;
+      bottom: 20px;
+      left: 30px;
+      z-index: 9999;
+    }
+    .indicator {
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      border: 3px solid #222;
+      background-color: #ff0000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .indicator.on {
+      background-color: #00ff00;
+      box-shadow: 0 0 12px #33ff33;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="t2">
+    <h4>PLC Com.</h4>
+  </div>
+
+  <div class="t1">
+    <div class="indicator" id="indicator3071"></div>
+  </div>
+
+  <div id="popup">
+    Min: <span id="pMin">--</span><br>
+    Max: <span id="pMax">--</span>
+  </div>
+
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">BACK</button>
+    <div class="title">MANUAL</div>
+    <div class="clock" id="clock">--/---/----<br>--:--:--</div>
+  </div>
+<div class="main-box">
+
+  <div class="row">
+    <div class="label">Pressure Limit (bar)</div>
+
+    <div style="position:relative;">
+      <div class="box" id="manual_press_limit" onclick="editBox()"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label">Actual Pressure (bar)</div>
+    <div class="box" id="manual_press_actual">--</div>
+  </div>
+
+</div>
+
+
+  <script>
+    setInterval(() => {
+      const d = new Date();
+      const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      document.getElementById("clock").innerHTML =
+        `${String(d.getDate()).padStart(2, '0')}/${m[d.getMonth()]}/${d.getFullYear()}<br>` +
+        `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+    }, 1000);
+
+    document.getElementById("backBtn").onclick = () => window.location.href = "/main";
+
+    const SCALE = {
+      pressure_set_e: 1,
+      leak_set_e:1,
+      duration_set_e: 1
+    };
+
+    let allow = true;
+
+    setInterval(() => { if (allow) update_manual(); }, 200);
+    
+    function update_manual() {
+      fetch("/set_page/manual")
+      fetch("/plc_value")
+        .then(r => r.json())
+        .then(d => {
+
+          if (!allow) return;
+
+          console.log("RAW:", d.manual_press_limit);
+
+          document.getElementById("manual_press_limit").innerText =
+            d.manual_press_limit != null
+              ? (d.manual_press_limit / SCALE.pressure_set_e).toFixed(2)
+              : "0.0";
+
+          document.getElementById("manual_press_actual").innerText =
+            d.manual_press_actual != null
+              ? (d.manual_press_actual / SCALE.leak_set_e).toFixed(2)
+              : "0.0";
+
+          // document.getElementById("press_actual_3").innerText =
+          //   d.press_actual_3 != null
+          //     ? (d.press_actual_3 / SCALE.duration_set_e).toFixed(2)
+          //     : "0.0";
+        });
+    }
+
+    function showPopup(box) {
+      const pop = document.getElementById("popup");
+      document.getElementById("pMin").innerText = "0";
+      document.getElementById("pMax").innerText = "10";
+
+      const rect = box.getBoundingClientRect();
+
+      pop.style.display = "block";
+      pop.style.left = rect.left + "px";
+      pop.style.top = (rect.top - 45 + window.scrollY) + "px";
+    }
+
+    function editBox() {
+      const box = document.getElementById("manual_press_limit");
+      allow = false;
+
+      showPopup(box);
+
+      box.setAttribute("contenteditable", "true");
+      box.style.outline = "none";
+      box.focus();
+      document.execCommand("selectAll", false, null);
+
+      box.onkeydown = function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          writeValue();
+        }
+      };
+    }
+
+    function writeValue() {
+      const box = document.getElementById("manual_press_limit");
+      let value = parseFloat(box.innerText);
+
+      if (isNaN(value) || value < 0 || value > 10) {
+        alert("Value must be 0 - 10");
+        return;
+      }
+
+      const scaled = value * SCALE.pressure_set_e;
+
+      fetch("/write_manual_limit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: scaled })
+      });
+
+      hidePopup();
+      allow = true;
+    }
+
+    // function increase() {
+    //   const box = document.getElementById("manual_press_limit");
+    //   let v = parseFloat(box.innerText) || 0;
+    //   v = (v + 0.03).toFixed(2);
+    //   box.innerText = v;
+
+    //   const scaled = v * SCALE.pressure_set_e;
+
+    //   fetch("/write_manual_limit", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ value: scaled })
+    //   });
+    // }
+
+    // function decrease() {
+    //   const box = document.getElementById("manual_press_limit");
+    //   let v = parseFloat(box.innerText) || 0;
+    //   v = (v - 0.03).toFixed(2);
+    //   if (v < 0.1) v = "0.10";
+
+    //   box.innerText = v;
+
+    //   const scaled = v * SCALE.pressure_set_e;
+
+    //   fetch("/write_manual_limit", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ value: scaled })
+    //   });
+    // }
+
+    document.addEventListener("mousedown", e => {
+      const box = document.getElementById("manual_press_limit");
+      const pop = document.getElementById("popup");
+
+      if (!pop.contains(e.target) && e.target !== box) {
+        hidePopup();
+        allow = true;
+      }
+    });
+
+    function hidePopup() {
+      document.getElementById("popup").style.display = "none";
+      const box = document.getElementById("manual_press_limit");
+      box.removeAttribute("contenteditable");
+    }
+
+  </script>
+  <script>
+    fetch("/page_change", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page: 3 })
+    });
+  </script>
+<script>
+  function updateIndicator() {
+    fetch("/indicator_plc")
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById("indicator3071");
+        if (!el || !data.ok) return;
+
+        if (data.value === 1) {
+          el.classList.add("on");   // green
+        } else {
+          el.classList.remove("on"); // red
+        }
+      })
+      .catch(() => {});
+  }
+
+  setInterval(updateIndicator, 300);
+  updateIndicator();
+</script>
+
+</body>
+
+</html>
